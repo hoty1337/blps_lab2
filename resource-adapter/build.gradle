@@ -1,0 +1,79 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.djeno'
+version = '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+// --- Конфигурации ---
+configurations {
+    spotbugsCli
+}
+
+// --- Зависимости ---
+dependencies {
+    // Jakarta Resource API (JCA SPI)
+    compileOnly 'jakarta.resource:jakarta.resource-api:2.1.0'
+
+    // SpotBugs CLI (будет упакован в lib/)
+    spotbugsCli "com.github.spotbugs:spotbugs:4.8.5"
+    spotbugsCli "org.slf4j:slf4j-api:2.0.16"
+    spotbugsCli "org.slf4j:slf4j-simple:2.0.16"
+    implementation "org.jboss:jboss-vfs:3.2.15.Final"
+}
+
+// --- Java версия ---
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+// --- Подготовка SpotBugs CLI ---
+tasks.register("prepareSpotbugsCli", Copy) {
+    from(configurations.spotbugsCli)
+    into("$buildDir/rar/lib")
+}
+
+// --- Генерация индекса с JAR-ами для CLI ---
+tasks.register("generateLibIndex") {
+    dependsOn("prepareSpotbugsCli")
+    doLast {
+        def libDir = file("$buildDir/rar/lib")
+        libDir.mkdirs()
+        def indexFile = file("$buildDir/rar/META-INF/spotbugs-lib.index")
+        indexFile.parentFile.mkdirs()
+        def names = libDir.listFiles({ d, n -> n.endsWith(".jar") } as FilenameFilter)*.name.sort()
+        indexFile.text = names.join("\n") + "\n"
+    }
+}
+
+// --- Сборка RAR ---
+tasks.register("rar", Zip) {
+    dependsOn("jar", "prepareSpotbugsCli", "generateLibIndex")
+
+    archiveBaseName.set("resource-adapter")
+    archiveVersion.set(version)
+    archiveExtension.set("rar")
+    destinationDirectory = layout.buildDirectory.dir('libs')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // классы (api, impl, service)
+    from(sourceSets.main.output)
+
+    // META-INF (ra.xml и индекс)
+    from("$projectDir/src/main/rar/META-INF") { into "META-INF" }
+    from("$buildDir/rar/META-INF") { into "META-INF" }
+
+    // библиотеки SpotBugs CLI
+    from("$buildDir/rar/lib") { into "lib" }
+
+    // (если бы были runtime-зависимости — сюда)
+    from(configurations.runtimeClasspath) { into "lib" }
+}
+
+assemble.dependsOn rar

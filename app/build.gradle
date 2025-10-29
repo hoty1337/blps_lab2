@@ -1,0 +1,47 @@
+plugins {
+    id "org.springframework.boot"
+    id "io.spring.dependency-management"
+    id "java"
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    implementation "org.springframework.boot:spring-boot-starter-quartz"
+
+    implementation "io.jsonwebtoken:jjwt-api:0.12.6"
+    runtimeOnly  "io.jsonwebtoken:jjwt-impl:0.12.6"
+    runtimeOnly  "io.jsonwebtoken:jjwt-jackson:0.12.6"
+
+    implementation "io.minio:minio:8.5.17"
+
+    implementation files('libs/smack.jar', 'libs/smackx.jar')
+    implementation "org.springframework.boot:spring-boot-starter-activemq"
+//    implementation "org.springframework.integration:spring-integration-xmpp"
+
+    compileOnly  "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+
+    developmentOnly "org.springframework.boot:spring-boot-devtools"
+    runtimeOnly "org.postgresql:postgresql"
+
+    // ВАЖНО: для Spring Boot 3.x используем jakarta-API, а не javax
+    // Заменяет javax.transaction:javax.transaction-api:1.3
+    implementation "jakarta.transaction:jakarta.transaction-api:2.0.1"
+
+    // Atomikos (jakarta-артефакты) оставляем
+    implementation "com.atomikos:transactions-jta:6.0.0:jakarta"
+    implementation "com.atomikos:transactions-jdbc:6.0.0:jakarta"
+    implementation "com.atomikos:transactions-jms:6.0.0:jakarta"
+}

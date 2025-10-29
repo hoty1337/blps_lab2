@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<users>
+    <user>
+        <id>1</id>
+        <username>hoty11</username>
+        <email>my@hoty13372.ru</email>
+        <role>ROLE_USER</role>
+    </user>
+    <user>
+        <id>4</id>
+        <username>hotyDev</username>
+        <email>dev@hoty1337.ru</email>
+        <role>ROLE_DEVELOPER</role>
+    </user>
+    <user>
+        <id>5</id>
+        <username>hotyDev1</username>
+        <email>iiec1337.2@gmail.com</email>
+        <role>ROLE_DEVELOPER</role>
+    </user>
+</users>

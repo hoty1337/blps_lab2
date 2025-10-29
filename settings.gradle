@@ -1,1 +1,6 @@
 rootProject.name = 'blps_lab2'
+include ':analyzer'
+include ':app'
+include 'resource-adapter'
+include 'analyzer-2'
+

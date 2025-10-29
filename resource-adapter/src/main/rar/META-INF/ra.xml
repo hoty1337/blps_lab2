@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee"
+           xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/connector_2_0.xsd" id="Connector_ID" version="2.0">
+    <description>SpotBugs Resource Adapter</description>
+    <display-name>SpotBugsRA</display-name>
+    <eis-type>Static Analyzer</eis-type>
+    <resourceadapter-version>1.0</resourceadapter-version>
+    <resourceadapter>
+        <outbound-resourceadapter>
+            <connection-definition>
+                <managedconnectionfactory-class>com.djeno.impl.SpotBugsManagedConnectionFactory</managedconnectionfactory-class>
+                <connectionfactory-interface>com.djeno.api.SpotBugsConnectionFactory</connectionfactory-interface>
+                <connectionfactory-impl-class>com.djeno.impl.SpotBugsConnectionFactoryImpl</connectionfactory-impl-class>
+                <connection-interface>com.djeno.api.SpotBugsConnection</connection-interface>
+                <connection-impl-class>com.djeno.impl.SpotBugsConnectionImpl</connection-impl-class>
+            </connection-definition>
+        </outbound-resourceadapter>
+    </resourceadapter>
+</connector>

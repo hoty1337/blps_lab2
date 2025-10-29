@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure>
+    <deployment>
+        <dependencies>
+            <!-- имя должно совпадать с ИМЕНЕМ файла вашего RAR в deployments -->
+            <module name="deployment.resource-adapter-0.1.rar" services="import"/>
+        </dependencies>
+    </deployment>
+</jboss-deployment-structure>
