@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -38,6 +40,7 @@ public class AppController {
     private final UserService userService;
     private final AppService appService;
     private final PurchaseService purchaseService;
+    private final RuntimeService runtimeService;
 
     @Operation(
             summary = "Загрузка нового приложения",
@@ -81,7 +84,13 @@ public class AppController {
         if (file == null || file.isEmpty()) {
             return ResponseEntity.badRequest().body("APK-файл обязателен");
         }
-
+//        runtimeService.createProcessInstanceByKey("publish_app")
+//                .setVariable("appData", appData)
+//                .setVariable("icon", icon)
+//                .setVariable("file", file)
+//                .setVariable("username", userService.getCurrentUser().getUsername())
+//                .setVariable("email", userService.getCurrentUser().getEmail())
+//                .executeWithVariablesInReturn();
         appService.createApp(appData, icon, file, screenshots);
         return ResponseEntity.ok("Приложение отправлено на авто-модерацию. Результат модерации придет на Вашу почту, указанную при регистрации.");
     }
@@ -139,7 +148,11 @@ public class AppController {
     @PreAuthorize("hasAuthority('DELETE_APP')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteApp(@PathVariable Long id) {
-        appService.deleteApp(id);
+//        appService.deleteApp(id);
+        runtimeService.createProcessInstanceByKey("app_remove")
+                .setVariable("username", userService.getCurrentUser().getUsername())
+                .setVariable("appId", id)
+                .execute();
         return ResponseEntity.ok("Приложение успешно удалено");
     }
 
@@ -175,9 +188,13 @@ public class AppController {
     @PreAuthorize("hasAuthority('PURCHASE_APP')")
     @PostMapping("/{id}/purchase")
     public ResponseEntity<String> purchaseApp(@PathVariable Long id) {
-        App app = appService.getAppById(id);
-        User user = userService.getCurrentUser();
-        purchaseService.purchaseApp(app, user);
+        runtimeService.createProcessInstanceByKey("purchase_app")
+                .setVariable("username", userService.getCurrentUser().getUsername())
+                .setVariable("appId", id)
+                .execute();
+//        App app = appService.getAppById(id);
+//        User user = userService.getCurrentUser();
+//        purchaseService.purchaseApp(app, user);
         return ResponseEntity.ok("Приложение было успешно оплачено");
     }
 

@@ -1,5 +1,6 @@
 package com.djeno.lab1.services;
 
+import com.djeno.lab1.camunda.CamundaIdentitySyncService;
 import com.djeno.lab1.persistence.DTO.JwtAuthenticationResponse;
 import com.djeno.lab1.persistence.DTO.SignInRequest;
 import com.djeno.lab1.persistence.DTO.SignUpRequest;
@@ -18,6 +19,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final CamundaIdentitySyncService camundaIdentitySyncService;
 
     /**
      * Регистрация пользователя
@@ -33,6 +35,12 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
                 .build();
+
+        camundaIdentitySyncService.createOrUpdateCamundaUser(
+                request.getUsername(),
+                request.getEmail(),
+                request.getPassword(),
+                request.getRole().name());
 
         userService.create(user);
 

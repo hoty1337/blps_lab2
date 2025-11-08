@@ -2,7 +2,7 @@ package com.djeno.lab1.services;
 
 import com.djeno.lab1.persistence.models.User;
 import com.djeno.lab1.persistence.repositories.*;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

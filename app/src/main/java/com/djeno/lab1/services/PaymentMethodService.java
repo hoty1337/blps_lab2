@@ -51,8 +51,41 @@ public class PaymentMethodService {
         return paymentMethodRepository.save(card);
     }
 
+    public PaymentMethod addCard(AddCardRequest request, String username) {
+        User user = userService.getByUsername(username);
+
+        if (paymentMethodRepository.existsByUserAndCardNumber(user, request.getCardNumber())) {
+            throw new CardAlreadyExistsException("Эта карта уже привязана к вашему аккаунту");
+        }
+
+        if (!virtualAccountService.exists(request.getCardNumber())) {
+            virtualAccountService.create(request.getCardNumber());
+        }
+
+        PaymentMethod card = new PaymentMethod();
+        card.setUser(user);
+        card.setCardNumber(request.getCardNumber());
+        card.setCardHolder(request.getCardHolder());
+        card.setExpirationDate(request.getExpirationDate());
+        card.setCvv(request.getCvv());
+        card.setPrimary(user.getPaymentMethods().isEmpty()); // Первая карта становится основной
+
+        return paymentMethodRepository.save(card);
+    }
+
     public void setPrimaryCard(Long cardId) {
         User user = userService.getCurrentUser();
+        paymentMethodRepository.findByIdAndUser(cardId, user)
+                .orElseThrow(() -> new CardNotFoundException("Карта не найдена"));
+
+        user.getPaymentMethods().forEach(card -> {
+            card.setPrimary(card.getId().equals(cardId));
+            paymentMethodRepository.save(card);
+        });
+    }
+
+    public void setPrimaryCard(Long cardId, String username) {
+        User user = userService.getByUsername(username);
         paymentMethodRepository.findByIdAndUser(cardId, user)
                 .orElseThrow(() -> new CardNotFoundException("Карта не найдена"));
 
@@ -74,6 +107,29 @@ public class PaymentMethodService {
     @Transactional
     public void deleteCard(Long cardId) {
         User currentUser = userService.getCurrentUser();
+        PaymentMethod card = paymentMethodRepository.findByIdAndUser(cardId, currentUser)
+                .orElseThrow(() -> new CardNotFoundException("Карта не найдена или не принадлежит пользователю"));
+
+        // Нельзя удалить основную карту, если она последняя
+        if (card.isPrimary() && paymentMethodRepository.countByUser(currentUser) == 1) {
+            throw new LastPrimaryCardException("Нельзя удалить единственную основную карту");
+        }
+
+        paymentMethodRepository.delete(card);
+
+        // Если удалили основную карту - назначаем новую основную
+        if (card.isPrimary()) {
+            paymentMethodRepository.findFirstByUser(currentUser)
+                    .ifPresent(newPrimary -> {
+                        newPrimary.setPrimary(true);
+                        paymentMethodRepository.save(newPrimary);
+                    });
+        }
+    }
+
+    @Transactional
+    public void deleteCard(Long cardId, String username) {
+        User currentUser = userService.getByUsername(username);
         PaymentMethod card = paymentMethodRepository.findByIdAndUser(cardId, currentUser)
                 .orElseThrow(() -> new CardNotFoundException("Карта не найдена или не принадлежит пользователю"));
 

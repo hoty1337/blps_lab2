@@ -11,7 +11,6 @@ import com.djeno.lab1.persistence.models.*;
 import com.djeno.lab1.persistence.repositories.AppRepository;
 import com.djeno.lab1.persistence.repositories.CategoryRepository;
 import com.djeno.lab1.xmpp.XmppProducer;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +52,9 @@ public class AppService {
             List<MultipartFile> screenshots) {
 
         User owner = userService.getCurrentUser();
+        if(appRepository.findByName(appData.getName()) != null) {
+            throw new AppAlreadyExistsException("Приложение с таким названием уже существует");
+        }
 
         if (file == null || file.isEmpty()) {
             throw new InvalidFileException("APK файл не загружен");
@@ -143,6 +145,44 @@ public class AppService {
 
     public void deleteApp(Long id) {
         User currentUser = userService.getCurrentUser();
+        App app = getAppById(id);
+
+        if (!app.getOwner().getId().equals(currentUser.getId()) &&
+                !currentUser.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new NotEnoughPrivileges("Недостаточно прав для удаления приложения");
+        }
+
+        if (app.getIconId() != null) {
+            try {
+                minioService.deleteFile(app.getIconId(), MinioService.ICONS_BUCKET);
+            } catch (Exception e) {
+                log.warn("Не удалось удалить иконку приложения из Minio: {}", e.getMessage());
+            }
+        }
+
+        if (app.getFileId() != null) {
+            try {
+                minioService.deleteFile(app.getFileId(), MinioService.APK_BUCKET);
+            } catch (Exception e) {
+                log.warn("Не удалось удалить APK файл из Minio: {}", e.getMessage());
+            }
+        }
+
+        if (app.getScreenshotsIds() != null) {
+            for (String screenId : app.getScreenshotsIds()) {
+                try {
+                    minioService.deleteFile(screenId, MinioService.SCREENSHOTS_BUCKET);
+                } catch (Exception e) {
+                    log.warn("Не удалось удалить скриншот из Minio: {}", e.getMessage());
+                }
+            }
+        }
+
+        appRepository.delete(app);
+    }
+
+    public void deleteApp(Long id, String username) {
+        User currentUser = userService.getByUsername(username);
         App app = getAppById(id);
 
         if (!app.getOwner().getId().equals(currentUser.getId()) &&

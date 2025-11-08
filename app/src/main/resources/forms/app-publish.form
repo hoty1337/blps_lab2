@@ -1,0 +1,140 @@
+{
+  "components": [
+    {
+      "label": "Название приложения",
+      "type": "textfield",
+      "id": "Field_name",
+      "key": "name",
+      "validate": {
+        "required": true
+      },
+      "layout": {
+        "row": "Row_name",
+        "columns": null
+      }
+    },
+    {
+      "label": "Описание",
+      "type": "textarea",
+      "id": "Field_description",
+      "key": "description",
+      "validate": {
+        "required": true
+      },
+      "layout": {
+        "row": "Row_description",
+        "columns": null
+      }
+    },
+    {
+      "label": "Цена (0 - бесплатно)",
+      "type": "number",
+      "id": "Field_price",
+      "key": "price",
+      "validate": {
+        "required": true,
+        "min": 0
+      },
+      "layout": {
+        "row": "Row_price",
+        "columns": null
+      }
+    },
+    {
+      "label": "Категории",
+      "values": [
+        {
+          "id": "1",
+          "label": "Игры",
+          "value": "0"
+        },
+        {
+          "id": "2",
+          "label": "Инструменты",
+          "value": "1"
+        },
+        {
+          "id": "3",
+          "label": "Образование",
+          "value": "2"
+        },
+        {
+          "id": "4",
+          "label": "Мультимедиа",
+          "value": "3"
+        }
+      ],
+      "type": "select",
+      "id": "Field_categoryIds",
+      "key": "categoryIds",
+      "multiple": true,
+      "layout": {
+        "row": "Row_categories",
+        "columns": null
+      },
+      "defaultValue": "Игры",
+      "searchable": false
+    },
+    {
+      "label": "Иконка (PNG/JPG, опционально)",
+      "type": "filepicker",
+      "id": "Field_icon",
+      "key": "icon",
+      "accept": ".png,.jpg,.jpeg",
+      "multiple": false,
+      "layout": {
+        "row": "Row_icon",
+        "columns": null
+      }
+    },
+    {
+      "label": "APK-файл (обязательно)",
+      "type": "filepicker",
+      "id": "Field_file",
+      "key": "file",
+      "accept": ".jar,application/vnd.android.package-archive,application/octet-stream",
+      "multiple": false,
+      "validate": {
+        "required": true
+      },
+      "layout": {
+        "row": "Row_file",
+        "columns": null
+      }
+    },
+    {
+      "label": "Скриншоты (PNG/JPG, опционально)",
+      "type": "filepicker",
+      "id": "Field_screenshots",
+      "key": "screenshots",
+      "accept": ".png,.jpg,.jpeg",
+      "multiple": true,
+      "layout": {
+        "row": "Row_screenshots",
+        "columns": null
+      }
+    },
+    {
+      "label": "Подтверждаю соответствие правилам",
+      "type": "checkbox",
+      "id": "Field_agree",
+      "key": "agree",
+      "validate": {
+        "required": true
+      },
+      "layout": {
+        "row": "Row_agree",
+        "columns": null
+      }
+    }
+  ],
+  "type": "default",
+  "id": "app-publish",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.40.1"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.24.0",
+  "schemaVersion": 19
+}

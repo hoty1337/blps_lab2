@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0o7xlca" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:collaboration id="Collaboration_19zaxvp">
+    <bpmn:participant id="Participant_0jxsb4j" name="Информационная система - Управление картами" processRef="wallet_manager_card" />
+  </bpmn:collaboration>
+  <bpmn:process id="wallet_manager_card" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1j20a95">
+      <bpmn:lane id="Lane_1kvk65x" name="Сервер">
+        <bpmn:flowNodeRef>task_delete_card</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_set_primary</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_add_card</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1hv8pqt" name="Пользователь">
+        <bpmn:flowNodeRef>Gateway_0hhrge0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>user_delete_card</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>user_add_card</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>user_set_primary</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>wallet_manage</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:exclusiveGateway id="Gateway_0hhrge0">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_15pzaly</bpmn:incoming>
+      <bpmn:outgoing>Flow_0zmwlql</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1263w5z</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0g596az</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="user_delete_card" name="Удалить карту" camunda:assignee="${username}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="cardId" label="Айди карты в кошельке" type="long" defaultValue="1">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0g596az</bpmn:incoming>
+      <bpmn:outgoing>Flow_1iq5dxl</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="task_delete_card" name="Удалить карту" camunda:delegateExpression="${deleteCardDelegate}">
+      <bpmn:incoming>Flow_1iq5dxl</bpmn:incoming>
+      <bpmn:outgoing>Flow_02620ni</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="user_add_card" name="Добавить карту" camunda:assignee="${username}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="cardNumber" label="Номер карты" type="string" defaultValue="1111111111111111">
+            <camunda:properties />
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="cardHolder" label="Владелец карты" type="string" defaultValue="IVAN IVANOV">
+            <camunda:properties />
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="expirationDate" label="Срок действия MM/YY" type="string" defaultValue="12/28">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="cvv" label="CVV/CVC (3 или 4 цифры)" type="string" defaultValue="228">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0zmwlql</bpmn:incoming>
+      <bpmn:outgoing>Flow_17jkh4a</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="user_set_primary" name="Сделать основной" camunda:assignee="${username}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="cardId" label="Айди карты в кошельке" type="long" defaultValue="1">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1263w5z</bpmn:incoming>
+      <bpmn:outgoing>Flow_0q04zx4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="task_set_primary" name="Сделать основной" camunda:delegateExpression="${primaryCardDelegate}">
+      <bpmn:incoming>Flow_0q04zx4</bpmn:incoming>
+      <bpmn:outgoing>Flow_0masn2u</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="task_add_card" name="Добавить карту" camunda:delegateExpression="${addCardDelegate}">
+      <bpmn:incoming>Flow_17jkh4a</bpmn:incoming>
+      <bpmn:outgoing>Flow_0a6myiz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="end_done" name="end_done">
+      <bpmn:incoming>Flow_0a6myiz</bpmn:incoming>
+      <bpmn:incoming>Flow_0masn2u</bpmn:incoming>
+      <bpmn:incoming>Flow_02620ni</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="wallet_manage" camunda:initiator="username">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="action" label="Выберите действие" type="enum" defaultValue="add">
+            <camunda:value id="add" name="Добавить карту" />
+            <camunda:value id="primary" name="Сделать основной" />
+            <camunda:value id="delete" name="Удалить карту" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_15pzaly</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_15pzaly" sourceRef="wallet_manage" targetRef="Gateway_0hhrge0" />
+    <bpmn:sequenceFlow id="Flow_0zmwlql" sourceRef="Gateway_0hhrge0" targetRef="user_add_card">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == 'add'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1263w5z" sourceRef="Gateway_0hhrge0" targetRef="user_set_primary">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == 'primary'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0g596az" sourceRef="Gateway_0hhrge0" targetRef="user_delete_card">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == 'delete'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1iq5dxl" sourceRef="user_delete_card" targetRef="task_delete_card" />
+    <bpmn:sequenceFlow id="Flow_02620ni" sourceRef="task_delete_card" targetRef="end_done" />
+    <bpmn:sequenceFlow id="Flow_17jkh4a" sourceRef="user_add_card" targetRef="task_add_card" />
+    <bpmn:sequenceFlow id="Flow_0q04zx4" sourceRef="user_set_primary" targetRef="task_set_primary" />
+    <bpmn:sequenceFlow id="Flow_0masn2u" sourceRef="task_set_primary" targetRef="end_done" />
+    <bpmn:sequenceFlow id="Flow_0a6myiz" sourceRef="task_add_card" targetRef="end_done" />
+  </bpmn:process>
+  <bpmn:message id="Message_2j2ljof" name="MSG_WALLET_MANAGE" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_19zaxvp">
+      <bpmndi:BPMNShape id="Participant_0jxsb4j_di" bpmnElement="Participant_0jxsb4j" isHorizontal="true">
+        <dc:Bounds x="152" y="80" width="768" height="510" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1kvk65x_di" bpmnElement="Lane_1kvk65x" isHorizontal="true">
+        <dc:Bounds x="182" y="435" width="738" height="155" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1hv8pqt_di" bpmnElement="Lane_1hv8pqt" isHorizontal="true">
+        <dc:Bounds x="182" y="80" width="738" height="355" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0hhrge0_di" bpmnElement="Gateway_0hhrge0" isMarkerVisible="true">
+        <dc:Bounds x="325" y="235" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0awsbgm_di" bpmnElement="user_delete_card">
+        <dc:Bounds x="440" y="330" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0187w2i_di" bpmnElement="task_delete_card">
+        <dc:Bounds x="440" y="460" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0krkwyq_di" bpmnElement="user_add_card">
+        <dc:Bounds x="680" y="110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1a9jrad_di" bpmnElement="user_set_primary">
+        <dc:Bounds x="560" y="220" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1p0n3ju_di" bpmnElement="task_set_primary">
+        <dc:Bounds x="560" y="460" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03d2dvc_di" bpmnElement="task_add_card">
+        <dc:Bounds x="680" y="460" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1t7bnui_di" bpmnElement="end_done">
+        <dc:Bounds x="852" y="482" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="845" y="452" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1u7x4bc_di" bpmnElement="wallet_manage">
+        <dc:Bounds x="232" y="242" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_15pzaly_di" bpmnElement="Flow_15pzaly">
+        <di:waypoint x="268" y="260" />
+        <di:waypoint x="325" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zmwlql_di" bpmnElement="Flow_0zmwlql">
+        <di:waypoint x="350" y="235" />
+        <di:waypoint x="350" y="150" />
+        <di:waypoint x="680" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1263w5z_di" bpmnElement="Flow_1263w5z">
+        <di:waypoint x="375" y="260" />
+        <di:waypoint x="560" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0g596az_di" bpmnElement="Flow_0g596az">
+        <di:waypoint x="350" y="285" />
+        <di:waypoint x="350" y="370" />
+        <di:waypoint x="440" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1iq5dxl_di" bpmnElement="Flow_1iq5dxl">
+        <di:waypoint x="490" y="410" />
+        <di:waypoint x="490" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02620ni_di" bpmnElement="Flow_02620ni">
+        <di:waypoint x="490" y="540" />
+        <di:waypoint x="490" y="580" />
+        <di:waypoint x="870" y="580" />
+        <di:waypoint x="870" y="518" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17jkh4a_di" bpmnElement="Flow_17jkh4a">
+        <di:waypoint x="730" y="190" />
+        <di:waypoint x="730" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0q04zx4_di" bpmnElement="Flow_0q04zx4">
+        <di:waypoint x="610" y="300" />
+        <di:waypoint x="610" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0masn2u_di" bpmnElement="Flow_0masn2u">
+        <di:waypoint x="610" y="540" />
+        <di:waypoint x="610" y="580" />
+        <di:waypoint x="870" y="580" />
+        <di:waypoint x="870" y="518" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0a6myiz_di" bpmnElement="Flow_0a6myiz">
+        <di:waypoint x="730" y="540" />
+        <di:waypoint x="730" y="580" />
+        <di:waypoint x="870" y="580" />
+        <di:waypoint x="870" y="518" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

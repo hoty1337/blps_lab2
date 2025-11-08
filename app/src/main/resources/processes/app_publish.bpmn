@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1vdcexq" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:collaboration id="start_publish">
+    <bpmn:participant id="Participant_0i5a6kb" name="Информационная система - Upload" processRef="publish_app" />
+  </bpmn:collaboration>
+  <bpmn:process id="publish_app" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1tj9f5q">
+      <bpmn:lane id="Lane_1ex6ktb" name="Пользователь">
+        <bpmn:flowNodeRef>start_publish_app</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_published</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1qs7fbe" name="Сервер">
+        <bpmn:flowNodeRef>task_send_xmpp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_upload_files</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_save_app</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:sequenceFlow id="Flow_1kxfkcm" sourceRef="start_publish_app" targetRef="task_upload_files" />
+    <bpmn:serviceTask id="task_send_xmpp" name="Отправить XMPP" camunda:asyncBefore="true" camunda:delegateExpression="${sendXmppDelegate}">
+      <bpmn:extensionElements>
+        <camunda:failedJobRetryTimeCycle>R3/PT30S</camunda:failedJobRetryTimeCycle>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1n3wz52</bpmn:incoming>
+      <bpmn:outgoing>Flow_1l9aoa7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0fyojoj" sourceRef="task_upload_files" targetRef="task_save_app" />
+    <bpmn:sequenceFlow id="Flow_1n3wz52" sourceRef="task_save_app" targetRef="task_send_xmpp" />
+    <bpmn:sequenceFlow id="Flow_1l9aoa7" sourceRef="task_send_xmpp" targetRef="end_published" />
+    <bpmn:startEvent id="start_publish_app" camunda:initiator="username">
+      <bpmn:outgoing>Flow_1kxfkcm</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="end_published" name="Опубликовано">
+      <bpmn:incoming>Flow_1l9aoa7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="task_upload_files" name="Загрузить файлы в MinIO" camunda:delegateExpression="${uploadAppDelegate}">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_1kxfkcm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0fyojoj</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="task_save_app" name="Сохранить приложение в БД" camunda:delegateExpression="${persistAppDelegate}">
+      <bpmn:incoming>Flow_0fyojoj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1n3wz52</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmn:message id="Message_39corp9" name="MSG_APP_PUBLISH_REQUEST" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="start_publish">
+      <bpmndi:BPMNShape id="Participant_0i5a6kb_di" bpmnElement="Participant_0i5a6kb" isHorizontal="true">
+        <dc:Bounds x="120" y="90" width="740" height="250" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1qs7fbe_di" bpmnElement="Lane_1qs7fbe" isHorizontal="true">
+        <dc:Bounds x="150" y="215" width="710" height="125" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1ex6ktb_di" bpmnElement="Lane_1ex6ktb" isHorizontal="true">
+        <dc:Bounds x="150" y="90" width="710" height="125" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1oiw3qm_di" bpmnElement="task_send_xmpp">
+        <dc:Bounds x="630" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0hgx57e_di" bpmnElement="start_publish_app">
+        <dc:Bounds x="222" y="132" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1o4bzde_di" bpmnElement="end_published">
+        <dc:Bounds x="772" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="753" y="108" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_02lxfb1_di" bpmnElement="task_upload_files">
+        <dc:Bounds x="300" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1b8ce56_di" bpmnElement="task_save_app">
+        <dc:Bounds x="470" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1kxfkcm_di" bpmnElement="Flow_1kxfkcm">
+        <di:waypoint x="240" y="168" />
+        <di:waypoint x="240" y="270" />
+        <di:waypoint x="300" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fyojoj_di" bpmnElement="Flow_0fyojoj">
+        <di:waypoint x="400" y="270" />
+        <di:waypoint x="470" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n3wz52_di" bpmnElement="Flow_1n3wz52">
+        <di:waypoint x="570" y="270" />
+        <di:waypoint x="630" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1l9aoa7_di" bpmnElement="Flow_1l9aoa7">
+        <di:waypoint x="730" y="270" />
+        <di:waypoint x="790" y="270" />
+        <di:waypoint x="790" y="168" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -3,6 +3,7 @@ package com.djeno.lab1.controllers;
 import com.djeno.lab1.persistence.DTO.payment.AddCardRequest;
 import com.djeno.lab1.persistence.DTO.payment.PaymentCardDTO;
 import com.djeno.lab1.services.PaymentMethodService;
+import com.djeno.lab1.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -26,6 +28,8 @@ import java.util.List;
 public class PaymentMethodController {
 
     private final PaymentMethodService paymentMethodService;
+    private final RuntimeService runtimeService;
+    private final UserService userService;
 
     @Operation(
             summary = "Добавить новую карту",
@@ -50,9 +54,16 @@ public class PaymentMethodController {
                     .toList();
             return ResponseEntity.badRequest().body(errors.toString());
         }
-
-        paymentMethodService.addCard(request);
-        return ResponseEntity.ok("Карта добавлена");
+        runtimeService.createProcessInstanceByKey("wallet_manager_card")
+                .setVariable("username", userService.getCurrentUser().getUsername())
+                .setVariable("action", "add")
+                .setVariable("cardNumber", request.getCardNumber())
+                .setVariable("cardHolder", request.getCardHolder())
+                .setVariable("expirationDate", request.getExpirationDate())
+                .setVariable("cvv", request.getCvv())
+                .executeWithVariablesInReturn();
+//        paymentMethodService.addCard(request);
+        return ResponseEntity.ok("Создали задачу с добавлением карты внутри Camunda Tasklist для аккаунта " + userService.getCurrentUser().getUsername());
     }
 
     @Operation(
@@ -69,8 +80,13 @@ public class PaymentMethodController {
     @PreAuthorize("hasAuthority('SET_PRIMARY_PAYMENT_METHOD')")
     @PatchMapping("/{id}/primary")
     public ResponseEntity<String> setPrimaryCard(@PathVariable Long id) {
-        paymentMethodService.setPrimaryCard(id);
-        return ResponseEntity.ok("Основная карта изменена");
+//        paymentMethodService.setPrimaryCard(id);
+        runtimeService.createProcessInstanceByKey("wallet_manager_card")
+                .setVariable("username", userService.getCurrentUser().getUsername())
+                .setVariable("action", "primary")
+                .setVariable("cardId", id)
+                .executeWithVariablesInReturn();
+        return ResponseEntity.ok("Создали задачу с изменением основной карты внутри Camunda Tasklist для аккаунта " + userService.getCurrentUser().getUsername());
     }
 
     @Operation(
@@ -100,7 +116,12 @@ public class PaymentMethodController {
     @ApiResponse(responseCode = "403", description = "Требуется авторизация")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCard(@PathVariable Long id) {
-        paymentMethodService.deleteCard(id);
+//        paymentMethodService.deleteCard(id);
+        runtimeService.createProcessInstanceByKey("wallet_manager_card")
+                .setVariable("username", userService.getCurrentUser().getUsername())
+                .setVariable("action", "delete")
+                .setVariable("cardId", id)
+                .executeWithVariablesInReturn();
         return ResponseEntity.ok("Карта успешно удалена");
     }
 }

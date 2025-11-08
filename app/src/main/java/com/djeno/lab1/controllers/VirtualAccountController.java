@@ -1,11 +1,13 @@
 package com.djeno.lab1.controllers;
 
 import com.djeno.lab1.persistence.DTO.payment.CardOperationData;
+import com.djeno.lab1.services.UserService;
 import com.djeno.lab1.services.VirtualAccountService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,8 @@ import java.math.BigDecimal;
 @RestController
 public class VirtualAccountController {
     public final VirtualAccountService virtualAccountService;
+    private final RuntimeService runtimeService;
+    private final UserService userService;
 
     @GetMapping("/balance")
     public ResponseEntity<String> getBalance(@RequestParam String cardNumber) {
@@ -30,7 +34,10 @@ public class VirtualAccountController {
             @RequestBody
             @Valid
             CardOperationData data) {
-        virtualAccountService.deposit(data.getCardNumber(), data.getAmount());
+        runtimeService.createProcessInstanceByKey("wallet_top_up")
+                .setVariable("username", userService.getCurrentUser().getUsername())
+                .executeWithVariablesInReturn();
+//        virtualAccountService.deposit(data.getCardNumber(), data.getAmount());
         return ResponseEntity.ok("Deposit " + data.getAmount() + " to " + data.getCardNumber());
     }
 

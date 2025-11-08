@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_15i4y65" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.23.0">
+  <bpmn:collaboration id="Collaboration_1sxwqzj">
+    <bpmn:participant id="Participant_0zo06fs" name="Информационная система - удаление приложения" processRef="app_remove" />
+  </bpmn:collaboration>
+  <bpmn:process id="app_remove" name="Remove App by Id" isExecutable="true" camunda:candidateStarterGroups="DEVELOPER,ADMIN">
+    <bpmn:laneSet id="LaneSet_0yxej95">
+      <bpmn:lane id="Lane_0zxet1q">
+        <bpmn:flowNodeRef>start_app_remove</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_014st9g">
+        <bpmn:flowNodeRef>task_find_by_fileId</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_app_found</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_nothing</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_delete_minio</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_removed</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:serviceTask id="task_find_by_fileId" name="Найти приложение по id" camunda:delegateExpression="${removalLoadAppDataDelegate}">
+      <bpmn:incoming>Flow_1oacbbz</bpmn:incoming>
+      <bpmn:outgoing>Flow_12647kk</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="gw_app_found" name="Приложение найдено?">
+      <bpmn:incoming>Flow_12647kk</bpmn:incoming>
+      <bpmn:outgoing>Flow_0gox0i4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0hecv80</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="end_nothing" name="Приложение уже удалено">
+      <bpmn:incoming>Flow_0hecv80</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="task_delete_minio" name="Удалить приложение" camunda:delegateExpression="${removeAppDelegate}">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_0gox0i4</bpmn:incoming>
+      <bpmn:outgoing>Flow_13ghgdu</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="start_app_remove" name="Start" camunda:initiator="username">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="appId" label="Айди приложения" type="long">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_1oacbbz</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1oacbbz" sourceRef="start_app_remove" targetRef="task_find_by_fileId" />
+    <bpmn:sequenceFlow id="Flow_12647kk" sourceRef="task_find_by_fileId" targetRef="gw_app_found" />
+    <bpmn:sequenceFlow id="Flow_0gox0i4" name="Да" sourceRef="gw_app_found" targetRef="task_delete_minio">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${appFound}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0hecv80" name="Нет" sourceRef="gw_app_found" targetRef="end_nothing">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!appFound}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_13ghgdu" sourceRef="task_delete_minio" targetRef="end_removed" />
+    <bpmn:endEvent id="end_removed" name="Успешно удалено">
+      <bpmn:incoming>Flow_13ghgdu</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:message id="Message_37svv4l" name="MSG_APP_REMOVE_REQUEST" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1sxwqzj">
+      <bpmndi:BPMNShape id="Participant_0zo06fs_di" bpmnElement="Participant_0zo06fs" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="580" height="380" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0zxet1q_di" bpmnElement="Lane_0zxet1q" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="550" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_014st9g_di" bpmnElement="Lane_014st9g" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="550" height="230" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16e8ap3_di" bpmnElement="task_find_by_fileId">
+        <dc:Bounds x="210" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0aqf1xv_di" bpmnElement="gw_app_found" isMarkerVisible="true">
+        <dc:Bounds x="365" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="358" y="235" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_184e4c3_di" bpmnElement="end_nothing">
+        <dc:Bounds x="372" y="362" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="347" y="405" width="87" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00x3aau_di" bpmnElement="task_delete_minio">
+        <dc:Bounds x="470" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_18w964k_di" bpmnElement="start_app_remove">
+        <dc:Bounds x="242" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="247" y="108" width="25" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1qgjjbg_di" bpmnElement="end_removed">
+        <dc:Bounds x="632" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="605" y="315" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1oacbbz_di" bpmnElement="Flow_1oacbbz">
+        <di:waypoint x="260" y="168" />
+        <di:waypoint x="260" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12647kk_di" bpmnElement="Flow_12647kk">
+        <di:waypoint x="310" y="290" />
+        <di:waypoint x="365" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gox0i4_di" bpmnElement="Flow_0gox0i4">
+        <di:waypoint x="415" y="290" />
+        <di:waypoint x="470" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="436" y="272" width="14" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0hecv80_di" bpmnElement="Flow_0hecv80">
+        <di:waypoint x="390" y="315" />
+        <di:waypoint x="390" y="362" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="395" y="336" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13ghgdu_di" bpmnElement="Flow_13ghgdu">
+        <di:waypoint x="570" y="290" />
+        <di:waypoint x="632" y="290" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

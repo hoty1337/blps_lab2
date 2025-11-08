@@ -40,12 +40,6 @@ public class PurchaseService {
                 throw new AppAlreadyPurchasedException("Приложение уже приобретено");
             }
             paymentMethodService.processPayment(user, app.getPrice());
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Interrupted во время симуляции ожидания: ", e);
-            }
             Purchase purchase = new Purchase();
             purchase.setUser(user);
             purchase.setApp(app);

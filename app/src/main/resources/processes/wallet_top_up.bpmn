@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0lqzwp0" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:collaboration id="Collaboration_0ygg1y1">
+    <bpmn:participant id="Participant_1xwzieo" name="Информационная система - Пополнить баланс" processRef="wallet_top_up" />
+  </bpmn:collaboration>
+  <bpmn:process id="wallet_top_up" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1823qsk">
+      <bpmn:lane id="Lane_1ah2qpn" name="Пользователь">
+        <bpmn:flowNodeRef>user_task_enter_amount</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>start_msg_wallet_top_up</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_topped_up</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1ktogv8" name="Сервер">
+        <bpmn:flowNodeRef>task_deposit</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:sequenceFlow id="Flow_0lwbpuf" sourceRef="start_msg_wallet_top_up" targetRef="user_task_enter_amount" />
+    <bpmn:userTask id="user_task_enter_amount" name="Пополнить счет" camunda:assignee="${username}" camunda:candidateGroups="">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="cardNumber" label="Номер карты" type="string" defaultValue="11111111111111">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="amount" label="Количество к пополнению" type="long" defaultValue="5">
+            <camunda:properties />
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0lwbpuf</bpmn:incoming>
+      <bpmn:outgoing>Flow_1yzwdiy</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1yzwdiy" sourceRef="user_task_enter_amount" targetRef="task_deposit" />
+    <bpmn:sequenceFlow id="Flow_1hdzpmu" sourceRef="task_deposit" targetRef="end_topped_up" />
+    <bpmn:startEvent id="start_msg_wallet_top_up" camunda:initiator="username">
+      <bpmn:outgoing>Flow_0lwbpuf</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="task_deposit" name="Внести средства" camunda:delegateExpression="${depositDelegate}">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_1yzwdiy</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hdzpmu</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="end_topped_up" name="">
+      <bpmn:incoming>Flow_1hdzpmu</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:message id="Message_2i8riq5" name="MSG_WALLET_TOP_UP" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0ygg1y1">
+      <bpmndi:BPMNShape id="Participant_1xwzieo_di" bpmnElement="Participant_1xwzieo" isHorizontal="true">
+        <dc:Bounds x="120" y="120" width="390" height="250" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1ktogv8_di" bpmnElement="Lane_1ktogv8" isHorizontal="true">
+        <dc:Bounds x="150" y="245" width="360" height="125" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1ah2qpn_di" bpmnElement="Lane_1ah2qpn" isHorizontal="true">
+        <dc:Bounds x="150" y="120" width="360" height="125" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0mqhi7v_di" bpmnElement="user_task_enter_amount">
+        <dc:Bounds x="270" y="140" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1sz4ebh_di" bpmnElement="start_msg_wallet_top_up">
+        <dc:Bounds x="182" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1l1lw0g_di" bpmnElement="task_deposit">
+        <dc:Bounds x="270" y="270" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ei5mxh_di" bpmnElement="end_topped_up">
+        <dc:Bounds x="432" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="461" y="132" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0lwbpuf_di" bpmnElement="Flow_0lwbpuf">
+        <di:waypoint x="218" y="180" />
+        <di:waypoint x="270" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1yzwdiy_di" bpmnElement="Flow_1yzwdiy">
+        <di:waypoint x="320" y="220" />
+        <di:waypoint x="320" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hdzpmu_di" bpmnElement="Flow_1hdzpmu">
+        <di:waypoint x="370" y="310" />
+        <di:waypoint x="450" y="310" />
+        <di:waypoint x="450" y="198" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

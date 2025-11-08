@@ -18,7 +18,7 @@ public class JmsConfig {
 
     @Bean
     public ActiveMQConnectionFactory activeMqConnectionFactory(
-            @Value("${mq.url:tcp://activemq:61616}") String url,
+            @Value("${mq.url:tcp://localhost:61616}") String url,
             @Value("${mq.user:admin}") String user,
             @Value("${mq.pass:admin}") String pass) {
         return new ActiveMQConnectionFactory(user, pass, url);

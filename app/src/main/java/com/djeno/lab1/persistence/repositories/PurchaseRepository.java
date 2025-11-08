@@ -22,4 +22,6 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from Purchase p where p.user.id in :userIds")
     int deleteByUserIdIn(@Param("userIds") List<Long> userIds);
+
+    void deleteByApp_id(Long appId);
 }

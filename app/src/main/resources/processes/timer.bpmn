@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0haz0bj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:collaboration id="Collaboration_0uf23bw">
+    <bpmn:participant id="Participant_1uu1ro0" name="Информационная система - Очистка" processRef="cleanup_inactive_users" />
+  </bpmn:collaboration>
+  <bpmn:process id="cleanup_inactive_users" name="Чистка неактивных пользователей" isExecutable="true">
+    <bpmn:endEvent id="End_Cleanup" name="Готово" />
+    <bpmn:startEvent id="Start_Cleanup" name="Ежедневно">
+      <bpmn:timerEventDefinition id="TimerEventDefinition_0upe2cu">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">R/PT24H</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="C1" sourceRef="Start_Cleanup" targetRef="ST_Cleanup" />
+    <bpmn:serviceTask id="ST_Cleanup" name="Удалить неактивных" camunda:asyncBefore="true" camunda:delegateExpression="${cleanupInactiveUsersDelegate}" />
+    <bpmn:sequenceFlow id="C2" sourceRef="ST_Cleanup" targetRef="End_Cleanup" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0uf23bw">
+      <bpmndi:BPMNShape id="Participant_0orqscu_di" bpmnElement="Participant_1uu1ro0" isHorizontal="true">
+        <dc:Bounds x="200" y="100" width="550" height="250" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_06yzxfc_di" bpmnElement="End_Cleanup">
+        <dc:Bounds x="592" y="202" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_10vf9lv_di" bpmnElement="Start_Cleanup">
+        <dc:Bounds x="272" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="261" y="238" width="58" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0k6r2w5_di" bpmnElement="ST_Cleanup">
+        <dc:Bounds x="400" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="C1_di" bpmnElement="C1">
+        <di:waypoint x="308" y="220" />
+        <di:waypoint x="400" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="C2_di" bpmnElement="C2">
+        <di:waypoint x="500" y="220" />
+        <di:waypoint x="592" y="220" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

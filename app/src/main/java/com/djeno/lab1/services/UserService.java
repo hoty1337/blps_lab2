@@ -6,7 +6,6 @@ import com.djeno.lab1.exceptions.UsernameAlreadyExistsException;
 import com.djeno.lab1.persistence.models.User;
 import com.djeno.lab1.persistence.repositories.UserRepository;
 import com.djeno.lab1.persistence.wrapper.UserWrapper;
-import jakarta.transaction.Transactional;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -15,8 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -66,7 +67,7 @@ public class UserService {
      */
     public User getByUsername(String username) {
         return repository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new UserNotFoundException("Пользователь '" + username + "' не найден"));
 
     }
 
@@ -105,15 +106,37 @@ public class UserService {
     public void saveUsers() {
         List<User> userList = repository.findAll();
         UserWrapper userWrapper = new UserWrapper(userList);
+
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(UserWrapper.class, User.class);
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            jaxbMarshaller.marshal(userWrapper, new File(usersFilePath));
-        } catch (JAXBException e) {
+
+            File file = new File(usersFilePath);
+
+            File parentDir = file.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                if (!parentDir.mkdirs()) {
+                    System.err.println("Не удалось создать директорию: " + parentDir.getAbsolutePath());
+                    return;
+                }
+            }
+            if (!file.exists()) {
+                boolean created = file.createNewFile();
+                if (!created) {
+                    System.err.println("Не удалось создать файл: " + file.getAbsolutePath());
+                    return;
+                }
+            }
+
+            jaxbMarshaller.marshal(userWrapper, file);
+            System.out.println("Пользователи сохранены в " + file.getAbsolutePath());
+
+        } catch (JAXBException | IOException e) {
             e.printStackTrace();
         }
     }
+
 
     @Transactional
     public void touchLastLogin(String username, Duration throttle) {

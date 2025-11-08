@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0iqkdoy" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:collaboration id="Collaboration_085bjta">
+    <bpmn:participant id="Participant_1t4206o" name="Информационная система - Результат проверки приложения" processRef="analyze_finish" />
+  </bpmn:collaboration>
+  <bpmn:process id="analyze_finish" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Сообщение от сервиса-анализатора">
+      <bpmn:outgoing>Flow_0qw3on7</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1xg1wcg" messageRef="Message_0umeipo" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_1bwdghm" name="Проверить валидность переданных данных" camunda:delegateExpression="${verifyMessageAppDataDelegate}">
+      <bpmn:incoming>Flow_0qw3on7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0f6zbnb</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_1gukfli" name="Данные валидны?">
+      <bpmn:incoming>Flow_0f6zbnb</bpmn:incoming>
+      <bpmn:outgoing>Flow_0wnlkye</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1qsx8ph</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="Event_1xwi1wt">
+      <bpmn:incoming>Flow_1qsx8ph</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_040cqyx" name="Удалить приложение" camunda:delegateExpression="${deleteAppDelegate}">
+      <bpmn:incoming>Flow_0wnlkye</bpmn:incoming>
+      <bpmn:outgoing>Flow_1jlxh33</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_038uefu">
+      <bpmn:incoming>Flow_1jlxh33</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0qw3on7" sourceRef="StartEvent_1" targetRef="Activity_1bwdghm" />
+    <bpmn:sequenceFlow id="Flow_0f6zbnb" sourceRef="Activity_1bwdghm" targetRef="Gateway_1gukfli" />
+    <bpmn:sequenceFlow id="Flow_0wnlkye" name="Да" sourceRef="Gateway_1gukfli" targetRef="Activity_040cqyx">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1qsx8ph" name="Нет" sourceRef="Gateway_1gukfli" targetRef="Event_1xwi1wt">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!valid}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1jlxh33" sourceRef="Activity_040cqyx" targetRef="Event_038uefu" />
+  </bpmn:process>
+  <bpmn:message id="Message_0umeipo" name="MESSAGE_ANALYZE_FINISH" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_085bjta">
+      <bpmndi:BPMNShape id="Participant_1t4206o_di" bpmnElement="Participant_1t4206o" isHorizontal="true">
+        <dc:Bounds x="120" y="82" width="660" height="250" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_12jr1cy_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="163" y="225" width="75" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0og5g73_di" bpmnElement="Activity_1bwdghm">
+        <dc:Bounds x="270" y="160" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1gukfli_di" bpmnElement="Gateway_1gukfli" isMarkerVisible="true">
+        <dc:Bounds x="425" y="175" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="424" y="137.5" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1xwi1wt_di" bpmnElement="Event_1xwi1wt">
+        <dc:Bounds x="432" y="262" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0o1ec34_di" bpmnElement="Activity_040cqyx">
+        <dc:Bounds x="530" y="160" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_038uefu_di" bpmnElement="Event_038uefu">
+        <dc:Bounds x="692" y="182" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0qw3on7_di" bpmnElement="Flow_0qw3on7">
+        <di:waypoint x="218" y="200" />
+        <di:waypoint x="270" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0f6zbnb_di" bpmnElement="Flow_0f6zbnb">
+        <di:waypoint x="370" y="200" />
+        <di:waypoint x="425" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wnlkye_di" bpmnElement="Flow_0wnlkye">
+        <di:waypoint x="475" y="200" />
+        <di:waypoint x="530" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="496" y="182" width="14" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qsx8ph_di" bpmnElement="Flow_1qsx8ph">
+        <di:waypoint x="450" y="225" />
+        <di:waypoint x="450" y="262" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="455" y="241" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jlxh33_di" bpmnElement="Flow_1jlxh33">
+        <di:waypoint x="630" y="200" />
+        <di:waypoint x="692" y="200" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

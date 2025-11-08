@@ -22,4 +22,5 @@ public interface AppRepository extends JpaRepository<App, Long> {
                                @Param("unknownId") Long unknownId);
 
     App findByFileId(String appId);
+    App findByName(String name);
 }
