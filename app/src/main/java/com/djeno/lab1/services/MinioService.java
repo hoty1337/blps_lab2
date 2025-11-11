@@ -24,8 +24,8 @@ public class MinioService {
 
     public MinioService(@Value("${minio.endpoint}") String endpoint,
                         @Value("${minio.publicUrl}") String publicBaseUrl,
-                        @Value("${minio.accessKey}") String accessKey,
-                        @Value("${minio.secretKey}") String secretKey) {
+                        @Value("${minio.root.user}") String accessKey,
+                        @Value("${minio.root.password}") String secretKey) {
         this.minioClient = MinioClient.builder()
                 .endpoint(endpoint)
                 .credentials(accessKey, secretKey)

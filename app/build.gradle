@@ -9,6 +9,10 @@ java {
     toolchain { languageVersion = JavaLanguageVersion.of(17) }
 }
 
+war {
+    archiveFileName = 'ROOT.war'
+}
+
 repositories {
     mavenCentral()
 }
@@ -29,10 +33,6 @@ dependencies {
         exclude group: "com.sun.xml.bind", module: "jaxb-impl"
     }
     implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.24.0-alpha3") {
-        exclude group: "com.sun.xml.bind", module: "jaxb-core"
-        exclude group: "com.sun.xml.bind", module: "jaxb-impl"
-    }
-    implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:7.24.0-alpha3") {
         exclude group: "com.sun.xml.bind", module: "jaxb-core"
         exclude group: "com.sun.xml.bind", module: "jaxb-impl"
     }

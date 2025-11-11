@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class XmppProducer {
     private XMPPConnection connection;
-    @Value("${xmpp.host:localhost}") String host;
-    @Value("${xmpp.domain:localhost}") String domain;
-    @Value("${xmpp.port:61222}") int port;
-    @Value("${xmpp.user:admin}") String user;
-    @Value("${xmpp.nickname:spring}") String nickname;
-    @Value("${xmpp.password:admin}") String password;
+    @Value("${xmpp.host}") String host;
+    @Value("${xmpp.domain}") String domain;
+    @Value("${xmpp.port}") int port;
+    @Value("${xmpp.user}") String user;
+    @Value("${xmpp.nickname}") String nickname;
+    @Value("${xmpp.password}") String password;
 
     @PostConstruct
     public void init() throws Exception {

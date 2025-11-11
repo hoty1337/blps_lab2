@@ -47,7 +47,10 @@ public class TopicDurableListener {
             ActiveMQConnectionFactory connectionFactory =
                     new ActiveMQConnectionFactory("tcp://localhost:61616");
 
-            connection = connectionFactory.createConnection("admin", "admin");
+            connection = connectionFactory.createConnection(
+                    System.getenv().getOrDefault("ACTIVEMQ_USER", "admin"),
+                    System.getenv().getOrDefault("ACTIVEMQ_PASSWORD", "admin")
+            );
             connection.setClientID("ee-consumer-2");
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Topic topic = session.createTopic("analysis.request");
